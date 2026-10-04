@@ -7,7 +7,7 @@
 !  The auxiliary variable exchange_pressure holds P_X.
 
 !** AUTOMATIC CPARAM.INC GENERATION ****************************
-! Declare (for generation of qhd_exchange_dummies.inc) the number of f array
+! Declare (for generation of special_dummies.inc) the number of f array
 ! variables and auxiliary variables added by this module
 
 ! CPARAM logical, parameter :: lspecial = .true.
@@ -16,7 +16,7 @@
 ! MAUX CONTRIBUTION 1
 
 !***************************************************************
-module qhd_exchange
+module Special
 
   use Cdata
   use Quiet
@@ -34,9 +34,9 @@ module qhd_exchange
   real :: inv_m_particle = 0.0
   integer :: iexchange_pressure = 0
 
-  namelist /qhd_exchange_init_pars/ lexchange_term, m_particle_cgs
+  namelist /special_init_pars/ lexchange_term, m_particle_cgs
 
-  namelist /qhd_exchange_run_pars/ lexchange_term, m_particle_cgs
+  namelist /special_run_pars/ lexchange_term, m_particle_cgs
 
   contains
 !***********************************************************************
@@ -67,6 +67,8 @@ module qhd_exchange
       if (lexchange_term) then
         if (.not.ldensity .or. .not.lhydro) &
             call fatal_error('initialize_special','Exchange term requires DENSITY and HYDRO')
+        if (nygrid/=1.or.nzgrid/=1 .or. lcylindrical_coords .or. lspherical_coords) &
+            call fatal_error('initialize_special','Exchange term currently supports 1D Cartesian x only')
         if (unit_system/='cgs') &
             call fatal_error('initialize_special','Exchange term requires unit_system=cgs')
         if (m_particle<=0.0d0) &
@@ -132,7 +134,6 @@ module qhd_exchange
       type (pencil_case), intent(in) :: p
 
       real, dimension(nx) :: exchange_cs2
-      integer :: j
 
       if (lexchange_term) then
         exchange_cs2 = qhd_exchange_coeff*(p%rho*inv_m_particle)**(1.0/3.0)
@@ -144,9 +145,7 @@ module qhd_exchange
               'exchange pressure exceeds the degenerate pressure: sound speed squared <= 0')
         endif
 
-        do j = 1, 3
-          df(l1:l2,m,n,iuu+j-1) = df(l1:l2,m,n,iuu+j-1) + exchange_cs2*p%glnrho(:,j)
-        enddo
+        df(l1:l2,m,n,iux) = df(l1:l2,m,n,iux) + exchange_cs2*p%glnrho(:,1)
       endif
 
       call keep_compiler_quiet(f)
@@ -160,7 +159,7 @@ module qhd_exchange
       character(LEN=iomsglen), intent(out) :: iomsg
       integer :: iostat
 
-      read(parallel_unit, NML=qhd_exchange_init_pars, IOSTAT=iostat, IOMSG=iomsg)
+      read(parallel_unit, NML=special_init_pars, IOSTAT=iostat, IOMSG=iomsg)
       if (iostat==0) iomsg=""
 
     endsubroutine read_special_init_pars
@@ -169,7 +168,7 @@ module qhd_exchange
 
       integer, intent(in) :: unit
 
-      write(unit, NML=qhd_exchange_init_pars)
+      write(unit, NML=special_init_pars)
 
     endsubroutine write_special_init_pars
 !***********************************************************************
@@ -180,7 +179,7 @@ module qhd_exchange
       character(LEN=iomsglen), intent(out) :: iomsg
       integer :: iostat
 
-      read(parallel_unit, NML=qhd_exchange_run_pars, IOSTAT=iostat, IOMSG=iomsg)
+      read(parallel_unit, NML=special_run_pars, IOSTAT=iostat, IOMSG=iomsg)
       if (iostat==0) iomsg=""
 
     endsubroutine read_special_run_pars
@@ -189,7 +188,7 @@ module qhd_exchange
 
       integer, intent(in) :: unit
 
-      write(unit, NML=qhd_exchange_run_pars)
+      write(unit, NML=special_run_pars)
 
     endsubroutine write_special_run_pars
 !***********************************************************************
@@ -201,6 +200,6 @@ module qhd_exchange
 !**  copies dummy routines from nospecial.f90 for any Special      **
 !**  routines not implemented in this file                         **
 !**                                                                **
-    include '../qhd_exchange_dummies.inc'
+    include '../special_dummies.inc'
 !********************************************************************
-endmodule qhd_exchange
+endmodule Special
