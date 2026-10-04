@@ -5,7 +5,7 @@
 !  The auxiliary variable bohm_pressure holds P_Q = -(hbar^2/4 m^2) rho lap(ln rho).
 
 !** AUTOMATIC CPARAM.INC GENERATION ****************************
-! Declare (for generation of qhd_bohm_dummies.inc) the number of f array
+! Declare (for generation of special_dummies.inc) the number of f array
 ! variables and auxiliary variables added by this module
 
 ! CPARAM logical, parameter :: lspecial = .true.
@@ -14,7 +14,7 @@
 ! MAUX CONTRIBUTION 1
 
 !***************************************************************
-module qhd_bohm
+module Special
 
   use Cdata
   use Quiet
@@ -31,9 +31,9 @@ module qhd_bohm
   real :: qhd_bohm_coeff = 0.0
   integer :: ibohm_pressure = 0
 
-  namelist /qhd_bohm_init_pars/ lbohm_term, m_particle_cgs
+  namelist /special_init_pars/ lbohm_term, m_particle_cgs
 
-  namelist /qhd_bohm_run_pars/ lbohm_term, m_particle_cgs
+  namelist /special_run_pars/ lbohm_term, m_particle_cgs
 
   contains
 !***********************************************************************
@@ -46,16 +46,11 @@ module qhd_bohm
 
       call farray_register_auxiliary('bohm_pressure',ibohm_pressure)
 
-      if (naux+naux_com < maux+maux_com) then
-        aux_var(aux_count)=',bohm_pressure $'
-      endif
-      if (naux+naux_com == maux+maux_com) then
-        aux_var(aux_count)=',bohm_pressure'
-        aux_count=aux_count+1
-      endif
-      if (lroot) write(15,*) then
-        'bohm_pressure = fltarr(mx,my,mz)*one'
-      endif
+      if (naux+naux_com < maux+maux_com) aux_var(aux_count)=',bohm_pressure $'
+      if (naux+naux_com == maux+maux_com) aux_var(aux_count)=',bohm_pressure'
+      aux_count=aux_count+1
+
+      if (lroot) write(15,*) 'bohm_pressure = fltarr(mx,my,mz)*one'
 
     endsubroutine register_special
 !***********************************************************************
@@ -161,7 +156,7 @@ module qhd_bohm
       character(LEN=iomsglen), intent(out) :: iomsg
       integer :: iostat
 
-      read(parallel_unit, NML=qhd_bohm_init_pars, IOSTAT=iostat, IOMSG=iomsg)
+      read(parallel_unit, NML=special_init_pars, IOSTAT=iostat, IOMSG=iomsg)
       if (iostat==0) iomsg=""
 
     endsubroutine read_special_init_pars
@@ -170,7 +165,7 @@ module qhd_bohm
 
       integer, intent(in) :: unit
 
-      write(unit, NML=qhd_bohm_init_pars)
+      write(unit, NML=special_init_pars)
 
     endsubroutine write_special_init_pars
 !***********************************************************************
@@ -181,7 +176,7 @@ module qhd_bohm
       character(LEN=iomsglen), intent(out) :: iomsg
       integer :: iostat
 
-      read(parallel_unit, NML=qhd_bohm_run_pars, IOSTAT=iostat, IOMSG=iomsg)
+      read(parallel_unit, NML=special_run_pars, IOSTAT=iostat, IOMSG=iomsg)
       if (iostat==0) iomsg=""
 
     endsubroutine read_special_run_pars
@@ -190,7 +185,7 @@ module qhd_bohm
 
       integer, intent(in) :: unit
 
-      write(unit, NML=qhd_bohm_run_pars)
+      write(unit, NML=special_run_pars)
 
     endsubroutine write_special_run_pars
 !***********************************************************************
@@ -202,6 +197,6 @@ module qhd_bohm
 !**  copies dummy routines from nospecial.f90 for any Special      **
 !**  routines not implemented in this file                         **
 !**                                                                **
-    include '../qhd_bohm_dummies.inc'
+    include '../special_dummies.inc'
 !********************************************************************
-endmodule qhd_bohm
+endmodule Special
