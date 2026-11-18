@@ -35,6 +35,7 @@ module Special
   integer :: ibohm_pressure = 0
 
   integer :: bohm_stencil_order = 0
+  real :: bohm_prefactor = 1.0
 
   logical, dimension(3) :: lactive = .false.
 
@@ -46,7 +47,7 @@ module Special
 
   namelist /special_init_pars/ lbohm_term, m_particle_cgs, bohm_stencil_order
 
-  namelist /special_run_pars/ lbohm_term, m_particle_cgs, bohm_stencil_order
+  namelist /special_run_pars/ lbohm_term, bohm_prefactor, m_particle_cgs, bohm_stencil_order
 
   contains
 !***********************************************************************
@@ -95,7 +96,7 @@ module Special
 
         call initialize_stencils()
 
-        qhd_bohm_coeff = real(0.25d0*hbar**2/m_particle**2)
+        qhd_bohm_coeff = bohm_prefactor*real(0.25d0*hbar**2/m_particle**2)
       else
         qhd_bohm_coeff = 0.0
       endif
