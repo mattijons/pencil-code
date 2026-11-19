@@ -73,7 +73,7 @@ module Special
 
     real(KIND=rkind8) :: m_particle = 0.0d0
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
 
       m_particle = m_particle_cgs/unit_mass
       lactive = (/ nxgrid/=1, nygrid/=1, nzgrid/=1 /)
@@ -136,7 +136,7 @@ module Special
 !***********************************************************************
     subroutine init_special(f)
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
 
       call keep_compiler_quiet(f)
 
@@ -165,7 +165,7 @@ module Special
 !***********************************************************************
     subroutine calc_pencils_special(f,p)
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
       type (pencil_case) :: p
 
       call keep_compiler_quiet(f)
@@ -177,8 +177,8 @@ module Special
 
 ! Add the Bohm quantum-potential force to the momentum equation.
 
-      real, dimension(mx,my,mz,mfarray), intent(inout) :: f
-      real, dimension(mx,my,mz,mvar), intent(inout) :: df
+      real, contiguous, dimension(:,:,:,:) :: f
+      real, contiguous, dimension(:,:,:,:) :: df
       type (pencil_case), intent(in) :: p
 
       integer :: i

@@ -58,7 +58,7 @@ module Special
 !***********************************************************************
     subroutine initialize_special(f)
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
 
       real(KIND=rkind8) :: e2_code
 
@@ -87,7 +87,7 @@ module Special
 !***********************************************************************
     subroutine init_special(f)
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
 
       call keep_compiler_quiet(f)
 
@@ -115,7 +115,7 @@ module Special
 !***********************************************************************
     subroutine calc_pencils_special(f,p)
 
-      real, dimension(mx,my,mz,mfarray) :: f
+      real, contiguous, dimension(:,:,:,:) :: f
       type (pencil_case) :: p
 
       call keep_compiler_quiet(f)
@@ -129,8 +129,8 @@ module Special
 ! The exchange pressure lowers the effective sound speed squared by
 ! coeff*n^(1/3); the total must stay positive.
 
-      real, dimension(mx,my,mz,mfarray), intent(inout) :: f
-      real, dimension(mx,my,mz,mvar), intent(inout) :: df
+      real, contiguous, dimension(:,:,:,:) :: f
+      real, contiguous, dimension(:,:,:,:) :: df
       type (pencil_case), intent(in) :: p
 
       real, dimension(nx) :: exchange_cs2
