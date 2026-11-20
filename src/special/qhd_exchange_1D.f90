@@ -49,9 +49,8 @@ module Special
 
       call farray_register_auxiliary('exchange_pressure',iexchange_pressure)
 
-      if (naux+naux_com <  maux+maux_com) aux_var(aux_count)=',exchange_pressure $'
-      if (naux+naux_com  == maux+maux_com) aux_var(aux_count)=',exchange_pressure'
-      aux_count=aux_count+1
+      call farray_append_aux_var(',exchange_pressure',naux+naux_com < maux+maux_com)
+
       if (lroot) write(15,*) 'exchange_pressure = fltarr(mx,my,mz)*one'
 
     endsubroutine register_special

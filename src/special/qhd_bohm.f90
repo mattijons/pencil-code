@@ -61,17 +61,13 @@ module Special
 
       call farray_register_auxiliary('bohm_pressure',ibohm_pressure)
 
-      if (naux+naux_com < maux+maux_com) aux_var(aux_count)=',bohm_pressure $'
-      if (naux+naux_com == maux+maux_com) aux_var(aux_count)=',bohm_pressure'
-      aux_count=aux_count+1
+      call farray_append_aux_var(',bohm_pressure',naux+naux_com < maux+maux_com)
 
       if (lroot) write(15,*) 'bohm_pressure = fltarr(mx,my,mz)*one'
 
     endsubroutine register_special
 !***********************************************************************
     subroutine initialize_special(f)
-
-    real(KIND=rkind8) :: m_particle = 0.0d0
 
       real, contiguous, dimension(:,:,:,:) :: f
 
